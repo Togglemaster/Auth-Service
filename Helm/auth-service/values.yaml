@@ -1,7 +1,7 @@
 auth-service:
   replicaCount: 2
   namespace: auth-service
-  image: 778900740186.dkr.ecr.us-east-1.amazonaws.com/auth-service:a433361
+  image: 778900740186.dkr.ecr.us-east-1.amazonaws.com/auth-service:a9b0599
   imagePullPolicy: IfNotPresent
   port: 8080
   imagePullSecrets:
