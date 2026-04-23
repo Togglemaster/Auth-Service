@@ -31,9 +31,9 @@ auth-service:
       failureThreshold: 3
   envFrom:
     - secretRef:
-        name: auth-service-db-secret
+        name: auth-service-config
     - secretRef:
-        name: auth-service-db-secret-host
+        name: auth-service-db-credentials
 
   autoscaling:
     enabled: true
