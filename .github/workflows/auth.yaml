@@ -8,16 +8,16 @@ on:
     branches:
       - main
     paths:
-      - 'auth-service/**'
+      - 'Auth-Service/**'
 
   pull_request:
     branches:
       - main
     paths:
-      - 'auth-service/**'
+      - 'Auth-Service/**'
 
 env:
-  SERVICE_NAME: auth-service
+  SERVICE_NAME: Auth-Service
   GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
 
 jobs:
