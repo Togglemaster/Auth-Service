@@ -1,12 +1,12 @@
 package main
 
 import (
-	//"crypto/sha256"
-	//"encoding/hex"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
+
+	"go.opentelemetry.io/otel"
 )
 
 // Estrutura para o corpo da requisição de criação de chave
@@ -23,12 +23,23 @@ type CreateKeyResponse struct {
 
 // healthHandler é um simples endpoint de verificação de saúde
 func (a *App) healthHandler(w http.ResponseWriter, r *http.Request) {
+	tracer := otel.Tracer("auth-service")
+	ctx, span := tracer.Start(r.Context(), "healthHandler")
+	defer span.End()
+
+	// Simular uma operação com contexto para usar o ctx
+	_ = ctx // Evitar erro de variável não utilizada
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
 // validateKeyHandler verifica se uma chave de API (enviada via Header) é válida
 func (a *App) validateKeyHandler(w http.ResponseWriter, r *http.Request) {
+	tracer := otel.Tracer("auth-service")
+	ctx, span := tracer.Start(r.Context(), "validateKeyHandler")
+	defer span.End()
+
 	// Extrai a chave do header "Authorization: Bearer <key>"
 	authHeader := r.Header.Get("Authorization")
 	keyString := strings.TrimPrefix(authHeader, "Bearer ")
@@ -43,7 +54,7 @@ func (a *App) validateKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Verifica se o hash existe no banco de dados
 	var id int
-	err := a.DB.QueryRow("SELECT id FROM api_keys WHERE key_hash = $1 AND is_active = true", keyHash).Scan(&id)
+	err := a.DB.QueryRowContext(ctx, "SELECT id FROM api_keys WHERE key_hash = $1 AND is_active = true", keyHash).Scan(&id)
 	if err != nil {
 		// Se não encontrar (sql.ErrNoRows), ou qualquer outro erro, a chave é inválida
 		log.Printf("Falha na validação da chave (hash: %s...): %v", keyHash[:6], err)
