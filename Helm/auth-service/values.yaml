@@ -35,6 +35,9 @@ auth-service:
     - secretRef:
         name: auth-service-db-credentials
 
+  ingress:
+    path: /auth-service(/|$)(.*)
+
   autoscaling:
     enabled: true
     minReplicas: 2
