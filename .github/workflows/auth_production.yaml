@@ -194,6 +194,6 @@ jobs:
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update ${{ env.SERVICE_NAME }} image (${{ env.ENVIRONMENT }}) to $COMMIT_HASH"
+            git commit -m "Update ${{ env.SERVICE_NAME }} image (${{ env.ENVIRONMENT }}) to $COMMIT_HASH [skip ci]"
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
