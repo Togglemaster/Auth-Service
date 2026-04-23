@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/joho/godotenv"
@@ -52,7 +53,7 @@ if databaseURL == "" {
 	// --- Conexão com o Banco ---
 	db, err := connectDB(databaseURL)
 	if err != nil {
-		log.Fatalf("Não foi possível conectar ao banco de dados: %v, na url %s", err, databaseURL)
+		log.Fatalf("Não foi possível conectar ao banco de dados: %v", err)
 	}
 	defer db.Close()
 
@@ -72,8 +73,18 @@ if databaseURL == "" {
 	// Eles são protegidos pelo middleware de autenticação
 	mux.Handle("/admin/keys", app.masterKeyAuthMiddleware(http.HandlerFunc(app.createKeyHandler)))
 
+	// #nosec G706 -- port é lido de env var controlada pelo operador, não de entrada de usuário
 	log.Printf("Serviço de Autenticação (Go) rodando na porta %s", port)
-	if err := http.ListenAndServe(":"+port, mux); err != nil {
+
+	srv := &http.Server{
+		Addr:              ":" + port,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
