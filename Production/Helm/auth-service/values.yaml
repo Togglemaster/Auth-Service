@@ -1,0 +1,46 @@
+auth-service:
+  replicaCount: 2
+  namespace: auth-service
+  image: "057096910794.dkr.ecr.us-east-1.amazonaws.com/auth-service:1.0.0"
+  imagePullPolicy: IfNotPresent
+  port: 8080
+  imagePullSecrets:
+    - name: ecr-secret
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+  probes:
+    enabled: true
+    path: /health
+    startup:
+      failureThreshold: 180
+      periodSeconds: 1
+    readiness:
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+    liveness:
+      initialDelaySeconds: 180
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+  envFrom:
+    - secretRef:
+        name: auth-service-config
+    - secretRef:
+        name: auth-service-db-credentials
+
+  ingress:
+    path: /auth-service(/|$)(.*)
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
