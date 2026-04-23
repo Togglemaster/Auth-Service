@@ -24,11 +24,9 @@ type CreateKeyResponse struct {
 // healthHandler é um simples endpoint de verificação de saúde
 func (a *App) healthHandler(w http.ResponseWriter, r *http.Request) {
 	tracer := otel.Tracer("auth-service")
-	ctx, span := tracer.Start(r.Context(), "healthHandler")
+	ctx := r.Context()
+	ctx, span := tracer.Start(ctx, "healthHandler")
 	defer span.End()
-
-	// Simular uma operação com contexto para usar o ctx
-	_ = ctx // Evitar erro de variável não utilizada
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
@@ -37,7 +35,8 @@ func (a *App) healthHandler(w http.ResponseWriter, r *http.Request) {
 // validateKeyHandler verifica se uma chave de API (enviada via Header) é válida
 func (a *App) validateKeyHandler(w http.ResponseWriter, r *http.Request) {
 	tracer := otel.Tracer("auth-service")
-	ctx, span := tracer.Start(r.Context(), "validateKeyHandler")
+	ctx := r.Context()
+	ctx, span := tracer.Start(ctx, "validateKeyHandler")
 	defer span.End()
 
 	// Extrai a chave do header "Authorization: Bearer <key>"
@@ -69,6 +68,11 @@ func (a *App) validateKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 // createKeyHandler cria uma nova chave de API
 func (a *App) createKeyHandler(w http.ResponseWriter, r *http.Request) {
+	tracer := otel.Tracer("auth-service")
+	ctx := r.Context()
+	ctx, span := tracer.Start(ctx, "createKeyHandler")
+	defer span.End()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
@@ -95,7 +99,8 @@ func (a *App) createKeyHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Salva o hash no banco de dados
 	var newID int
-	err = a.DB.QueryRow(
+	err = a.DB.QueryRowContext(
+		ctx,
 		"INSERT INTO api_keys (name, key_hash) VALUES ($1, $2) RETURNING id",
 		req.Name, newKeyHash,
 	).Scan(&newID)

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -104,11 +105,11 @@ func main() {
 	mux.HandleFunc("/health", app.healthHandler)
 
 	// Endpoint público para validar uma chave
-	mux.HandleFunc("/validate", app.validateKeyHandler)
+	mux.Handle("GET /validate", otelhttp.NewHandler(http.HandlerFunc(app.validateKeyHandler), "validate"))
 
 	// Endpoints de "admin" para criar/gerenciar chaves
 	// Eles são protegidos pelo middleware de autenticação
-	mux.Handle("/admin/keys", app.masterKeyAuthMiddleware(http.HandlerFunc(app.createKeyHandler)))
+	mux.Handle("POST /admin/keys", otelhttp.NewHandler(app.masterKeyAuthMiddleware(http.HandlerFunc(app.createKeyHandler)), "createKey"))
 
 	log.Printf("Serviço de Autenticação (Go) rodando na porta %s", port)
 	defer span.End()
