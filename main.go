@@ -102,7 +102,7 @@ func main() {
 
 	// --- Rotas da API ---
 	mux := http.NewServeMux()
-	mux.Handle("/health", otelhttp.NewHandler(http.HandlerFunc(app.healthHandler), "health"))
+	mux.Handle("GET /health", otelhttp.NewHandler(http.HandlerFunc(app.healthHandler), "health"))
 
 	// Endpoint público para validar uma chave
 	mux.Handle("GET /validate", otelhttp.NewHandler(http.HandlerFunc(app.validateKeyHandler), "validate"))
