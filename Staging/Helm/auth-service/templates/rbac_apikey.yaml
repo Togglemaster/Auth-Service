@@ -55,7 +55,7 @@ spec:
             - name: ADMIN_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: auth-service-db-secret
+                  name: auth-service-config
                   key: MASTER_KEY
           command: ["/bin/bash", "-c"]
           args:
