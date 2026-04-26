@@ -1,5 +1,5 @@
-auth-service:
-  replicaCount: 2
+﻿auth-service:
+  replicas: 1
   namespace: auth-service
   image: 778900740186.dkr.ecr.us-east-1.amazonaws.com/auth-service:staging-d50f97b
   imagePullPolicy: IfNotPresent
@@ -40,7 +40,7 @@ auth-service:
 
   autoscaling:
     enabled: true
-    minReplicas: 2
+    minReplicas: 1
     maxReplicas: 3
     targetCPUUtilizationPercentage: 80
     targetMemoryUtilizationPercentage: 80
