@@ -17,9 +17,11 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: {{ (index .Values "auth-service").autoscaling.cpuTarget }}
+        averageUtilization: {{ (index .Values "auth-service").autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
       name: memory
       target:
         type: Utilization
-        averageUtilization: {{ (index .Values "auth-service").autoscaling.memoryTarget }}
+        averageUtilization: {{ (index .Values "auth-service").autoscaling.targetMemoryUtilizationPercentage }}
 {{- end }}
