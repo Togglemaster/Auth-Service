@@ -34,6 +34,7 @@
         name: auth-service-config
     - secretRef:
         name: auth-service-db-credentials
+  env_vars: auth_db
 
   ingress:
     path: /auth-service(/|$)(.*)

@@ -23,6 +23,9 @@ spec:
         - name: app-auth-service
           image: {{ (index .Values "auth-service").image }}
           imagePullPolicy: {{ (index .Values "auth-service").imagePullPolicy }}
+          env:
+            - name: POSTGRES_DB
+              value: {{ (index .Values "auth-service").env_vars }}
           resources:
             requests:
               cpu: "100m"
