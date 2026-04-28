@@ -167,19 +167,29 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITOPS_TOKEN }}
 
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
       - name: Update image tag
         run: |
           COMMIT_HASH=${GITHUB_SHA::7}
           FILE_PATH="${{ env.WORKDIR }}/Helm/${{ env.SERVICE_NAME }}/values.yaml"
+          NEW_IMAGE="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ env.ENVIRONMENT }}-$COMMIT_HASH"
 
-          echo "Atualizando imagem do serviço: ${{ env.SERVICE_NAME }} (${{ env.ENVIRONMENT }})"
-          echo "Arquivo: $FILE_PATH"
+          echo "Updating $FILE_PATH to image: $NEW_IMAGE"
 
-          sed -i "/^${{ env.SERVICE_NAME }}:/,/^[a-zA-Z0-9-]*:/ s|image: .*|image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ env.SERVICE_NAME }}:${{ env.ENVIRONMENT }}-$COMMIT_HASH|" $FILE_PATH
+          yq -i ".\"${{ env.SERVICE_NAME }}\".image = \"$NEW_IMAGE\"" "$FILE_PATH"
 
-          echo "Resultado:"
-          grep -A 5 "${{ env.SERVICE_NAME }}:" $FILE_PATH
-          cat $FILE_PATH
+          ACTUAL=$(yq ".\"${{ env.SERVICE_NAME }}\".image" "$FILE_PATH")
+          if [ "$ACTUAL" != "$NEW_IMAGE" ]; then
+            echo "::error::yq did not update image field. Got: $ACTUAL"
+            exit 1
+          fi
+
+          echo "values.yaml updated:"
+          cat "$FILE_PATH"
 
       - name: Commit and Push changes
         run: |
@@ -189,11 +199,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add $FILE_PATH
+          git add "$FILE_PATH"
 
-          if git diff --quiet && git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update ${{ env.SERVICE_NAME }} image (${{ env.ENVIRONMENT }}) to $COMMIT_HASH [skip ci]"
-            git push origin HEAD:${GITHUB_REF_NAME}
+          if git diff --staged --quiet; then
+            echo "values.yaml already at $COMMIT_HASH — nothing to commit (re-run of same SHA)."
+            exit 0
           fi
+
+          git commit -m "Update ${{ env.SERVICE_NAME }} image (${{ env.ENVIRONMENT }}) to $COMMIT_HASH [skip ci]"
+          git push origin HEAD:${GITHUB_REF_NAME}
