@@ -1,7 +1,7 @@
-﻿auth-service:
+auth-service:
   replicas: 1
   namespace: auth-service
-  image: 778900740186.dkr.ecr.us-east-1.amazonaws.com/auth-service:staging-d50f97b
+  image: 778900740186.dkr.ecr.us-east-1.amazonaws.com/auth-service:staging-473c309
   imagePullPolicy: IfNotPresent
   port: 8080
   imagePullSecrets:
@@ -35,10 +35,8 @@
     - secretRef:
         name: auth-service-db-credentials
   env_vars: auth_db
-
   ingress:
     path: /auth-service(/|$)(.*)
-
   autoscaling:
     enabled: true
     minReplicas: 1
