@@ -22,7 +22,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: job-orchestrator-global-binding
+  name: {{ .Release.Name }}-job-orchestrator-binding
 subjects:
 - kind: ServiceAccount
   name: {{ .Release.Name }}-key-manager
