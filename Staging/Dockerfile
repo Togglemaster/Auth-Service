@@ -15,7 +15,7 @@ COPY . .
 RUN go mod tidy
 
 # 4. Instala o orchestrion (necessário para o comando abaixo funcionar)
-RUN go install github.com/DataDog/orchestrion@latest
+RUN go install github.com/DataDog/orchestrion@v0.9.0
 
 # 5. Compila a aplicação
 # O 'go build' agora usará o go.mod e o go.sum criados pelo 'tidy'
