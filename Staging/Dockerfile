@@ -14,9 +14,13 @@ COPY . .
 # Ele vai ler os .go, ver os imports, e CRIAR O go.sum
 RUN go mod tidy
 
-# 4. Compila a aplicação
+# 4. Instala o orchestrion (necessário para o comando abaixo funcionar)
+RUN go install github.com/DataDog/orchestrion@latest
+
+# 5. Compila a aplicação
 # O 'go build' agora usará o go.mod e o go.sum criados pelo 'tidy'
-RUN CGO_ENABLED=0 go build -o auth-service -ldflags "-s -w" .
+#RUN CGO_ENABLED=0 go build -o auth-service -ldflags "-s -w" .
+RUN CGO_ENABLED=0 orchestrion go build -o auth-service -ldflags "-s -w" .
 
 # -----------------------------------------------------------------
 # Estágio 2: "Final" (Inalterado)
