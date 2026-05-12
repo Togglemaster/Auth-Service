@@ -15,7 +15,7 @@ COPY . .
 RUN go mod tidy
 
 # 4. Instala o orchestrion (necessário para o comando abaixo funcionar)
-RUN go install github.com/DataDog/orchestrion@v1.6.0
+RUN go install github.com/DataDog/orchestrion@latest
 
 # 5. Fixa a versão do orchestrion no go.mod (necessário a partir da v1.x)
 RUN orchestrion pin
