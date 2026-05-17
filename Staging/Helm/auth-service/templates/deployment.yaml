@@ -26,6 +26,10 @@ spec:
           env:
             - name: POSTGRES_DB
               value: {{ (index .Values "auth-service").env_vars }}
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
           resources:
             requests:
               cpu: "100m"
