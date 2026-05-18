@@ -1,7 +1,7 @@
 auth-service:
   replicas: 1
   namespace: auth-service
-  image: 778900740186.dkr.ecr.us-east-1.amazonaws.com/auth-service:staging-51e7a86
+  image: 778900740186.dkr.ecr.us-east-1.amazonaws.com/auth-service:staging-52cfbc4
   imagePullPolicy: IfNotPresent
   port: 8001
   imagePullSecrets:
